@@ -139,6 +139,8 @@ for x in (range(len(list))):
 typesblue = ["bpo1", "bpo2", "bpo3", "bpo4", "bpo5"]
 typesred = ["rpo1", "rpo2", "rpo3", "rpo4", "rpo5"]
 
+print("\nAccepted roles: t, j, m, b, s")
+
 print("\nBLUE TEAM POSITIONS")
 
 for x in range(len(typesblue)):
