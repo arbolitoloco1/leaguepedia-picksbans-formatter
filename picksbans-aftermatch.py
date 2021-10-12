@@ -36,7 +36,7 @@ types = {
     "rp5": "5th Red Pick"
 }
 
-date= input("Date in yyyy-mm-dd format: ")
+date= input("Match date in yyyy-mm-dd format: ")
 date=dt.datetime.strptime(date, "%Y-%m-%d").date()
 datedelta = str(date+dt.timedelta(2))
 t1 = input("Blue Team: ")
