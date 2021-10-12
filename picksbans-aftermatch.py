@@ -52,7 +52,7 @@ response = site.api('cargoquery',
 parsed = json.dumps(response)
 data = json.loads(parsed)
 if len(data["cargoquery"]) == 0:
-    print("Response is empty!")
+    print("Not matches found!")
     os.system("pause")
 elif len(data["cargoquery"]) > 1:
     print("Multiple matches found!")
