@@ -3,7 +3,10 @@ import datetime as dt
 from datetime import date, timedelta
 import os
 
-response = requests.get("http://ddragon.leagueoflegends.com/cdn/11.20.1/data/en_US/champion.json")
+versions = requests.get("https://ddragon.leagueoflegends.com/api/versions.json")
+currentVer = versions.json()[0]
+
+response = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/champion.json".format(str(currentVer)))
 
 champkeys = response.json()["data"]
 champids = list(champkeys.keys())
