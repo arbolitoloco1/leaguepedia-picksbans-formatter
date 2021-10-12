@@ -97,7 +97,8 @@ pbs = {}
 pbslower = []
 posblue = []
 posred = []
-positions = []
+blueteamchamps = []
+redteamchamps = []
 
 pbslower.extend([bb1.lower(), bb2.lower(), bb3.lower(), bb4.lower(), bb5.lower(), rb1.lower(), rb2.lower(), rb3.lower(), rb4.lower(), rb5.lower()])
 
@@ -119,55 +120,63 @@ for x in (range(len(list))):
     inputstring = types.get(type)
     while True:
         champ = input("{}: ".format(inputstring))
-        if champ == "None":
-            pbs[type] = champ
-            break
-        elif champ.lower() in champnames or champ in champidslower:
+        if champ.lower() in champnames or champ in champidslower:
             if champ.lower() in pbslower:
                 print("The champ has already been chosen.")
                 continue
             else:
                 pbs[type] = champ
-                positions.append(champ)
                 pbslower.append(champ.lower())
+                if "bp" in type:
+                    blueteamchamps.append(champ)
+                elif "rp" in type:
+                    redteamchamps.append(champ)
                 break
         else:
             print("Not found!")
             continue
 
-positions2 = ["bpo1", "bpo2", "bpo3", "bpo4", "bpo5", "rpo1", "rpo2", "rpo3", "rpo4", "rpo5"]
+typesblue = ["bpo1", "bpo2", "bpo3", "bpo4", "bpo5"]
+typesred = ["rpo1", "rpo2", "rpo3", "rpo4", "rpo5"]
 
-for x in range(len(positions2)):
-    type = positions2[x]
-    inputstring = positions[x]
+print("\nBLUE TEAM POSITIONS")
+
+for x in range(len(typesblue)):
+    type = typesblue[x]
+    inputstring = blueteamchamps[x]
     while True:
         champ = input("Position/Role for {}: ".format(inputstring))
-        if "rpo" in type:
-            if champ == "t" or champ == "j" or champ == "m" or champ == "b" or champ == "s":
-                if champ in posred:
-                    print("The position has already been chosen for this team!")
-                    continue
-                else:
-                    pbs[type] = champ
-                    posred.append(champ)
-                    break
-            else:
-                print("The position is not valid!")
+        if champ == "t" or champ == "j" or champ == "m" or champ == "b" or champ == "s":
+            if champ in posblue:
+                print("The position has already been chosen for this team!")
                 continue
-        elif "bpo" in type:
-            if champ == "t" or champ == "j" or champ == "m" or champ == "b" or champ == "s":
-                if champ in posblue:
-                    print("The position has already been chosen for this team!")
-                    continue
-                else:
-                    pbs[type] = champ
-                    posblue.append(champ)
-                    break
             else:
-                print("The position is not valid!")
-                continue
+                pbs[type] = champ
+                posblue.append(champ)
+                break
+        else:
+            print("The position is not valid!")
+            continue
 
-finaldata = PICKSBANS.format(bb1 = pbs.get("bb1"), bb2 = pbs.get("bb2"), bb3 = pbs.get("bb3"), bb4 = pbs.get("bb4"), bb5 = pbs.get("bb5"), rb1 = pbs.get("rb1"), rb2 = pbs.get("rb2"), rb3 = pbs.get("rb3"), rb4 = pbs.get("rb4"), rb5 = pbs.get("rb5"), 
+print("\nRED TEAM POSITIONS")
+
+for x in range(len(typesred)):
+    type = typesred[x]
+    inputstring = redteamchamps[x]
+    while True:
+        champ = input("Position/Role for {}: ".format(inputstring))
+        if champ == "t" or champ == "j" or champ == "m" or champ == "b" or champ == "s":
+            if champ in posred:
+                print("The position has already been chosen for this team!")
+                continue
+            else:
+                pbs[type] = champ
+                posred.append(champ)
+                break
+        else:
+            print("The position is not valid!")
+
+finaldata = PICKSBANS.format(t1 = t1, t2 = t2, bb1 = pbs.get("bb1"), bb2 = pbs.get("bb2"), bb3 = pbs.get("bb3"), bb4 = pbs.get("bb4"), bb5 = pbs.get("bb5"), rb1 = pbs.get("rb1"), rb2 = pbs.get("rb2"), rb3 = pbs.get("rb3"), rb4 = pbs.get("rb4"), rb5 = pbs.get("rb5"), 
 bp1 = pbs.get("bp1"), bp2 = pbs.get("bp2"), bp3 = pbs.get("bp3"), bp4 = pbs.get("bp4"), bp5 = pbs.get("bp5"), rp1 = pbs.get("rp1"), rp2 = pbs.get("rp2"), rp3 = pbs.get("rp3"), rp4 = pbs.get("rp4"), rp5 = pbs.get("rp5"), 
 bpo1 = pbs.get("bpo1"), bpo2 = pbs.get("bpo2"), bpo3 = pbs.get("bpo3"), bpo4 = pbs.get("bpo4"), bpo5 = pbs.get("bpo5"), rpo1 = pbs.get("rpo1"), rpo2 = pbs.get("rpo2"), rpo3 = pbs.get("rpo3"), rpo4 = pbs.get("rpo4"), rpo5 = pbs.get("rpo5"))
 
