@@ -49,7 +49,7 @@ response = site.api('cargoquery',
 	limit = "max",
 	tables = "ScoreboardGames=SG",
 	fields = "SG.Team1Bans, SG.Team2Bans, SG.Team1Picks, SG.Team2Picks",
-	where = "SG.DateTime_UTC >= '{date} 00:00:00' AND SG.DateTime_UTC <= '{datedelta} 00:00:00' AND SG.Team1 = '{t1}' AND SG.Team2 = '{t2}'".format(date = date, datedelta = datedelta, t1 = t1, t2 = t2)
+	where = 'SG.DateTime_UTC >= "{date} 00:00:00" AND SG.DateTime_UTC <= "{datedelta} 00:00:00" AND SG.Team1 = "{t1}" AND SG.Team2 = "{t2}"'.format(date = date, datedelta = datedelta, t1 = t1, t2 = t2)
 )
 parsed = json.dumps(response)
 data = json.loads(parsed)
@@ -116,6 +116,9 @@ pbs = {
     "rb4": rb4,
     "rb5": rb5
 }
+
+if "None" in pbs.values():
+    print("\nCheck for ban order please!")
 
 for x in (range(len(list))):
     type = list[x]
