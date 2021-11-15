@@ -6,16 +6,22 @@ currentVer = versions.json()[0]
 
 response = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/champion.json".format(str(currentVer)))
 
-champkeys = response.json()["data"]
-champids = list(champkeys.keys())
-champnames = []
-champidslower = []
+champdata = response.json()["data"]
+champkeyslist = list(champdata.keys())
+champs = []
+keysforchamps = {}
+prettychamps = {}
 
-for x in range(len(champids)):
-    champid = champids[x]
-    champname = response.json()["data"][champid]["name"]
-    champnames.append(champname.lower())
-    champidslower.append(champid.lower())
+for x in range(len(champdata)):
+    champkey = champkeyslist[x]
+    champname = champdata[champkey]["name"]
+    champid = champdata[champkey]["id"]
+    champkeyn = champdata[champkey]["key"]
+    champs.append(champname.lower())
+    champs.append(champid.lower())
+    keysforchamps[champname.lower()] = champkeyn
+    keysforchamps[champid.lower()] = champkeyn
+    prettychamps[champkeyn] = champname
 
 PICKSBANS = """{{{{PicksAndBansS7|blueteam={t1} |redteam={t2}\n|team1score= |team2score= |winner=\n|blueban1={bb1} |red_ban1={rb1}\n|blueban2={bb2} |red_ban2={rb2}\n|blueban3={bb3} |red_ban3={rb3}\n
 |bluepick1={bp1} |bluerole1={bpo1}\n                                           |red_pick1={rp1} |red_role1={rpo1}\n                                           |red_pick2={rp2} |red_role2={rpo2}\n|bluepick2={bp2} |bluerole2={bpo2}\n|bluepick3={bp3} |bluerole3={bpo3}\n                                           |red_pick3={rp3} |red_role3={rpo3}\n
@@ -57,7 +63,7 @@ elif str(order) == "2":
     list = ["bb1", "bb2", "bb3", "bb4", "bb5", "rb1", "rb2", "rb3", "rb4", "rb5", "bp1", "bp2", "bp3", "bp4", "bp5", "rp1", "rp2", "rp3", "rp4", "rp5"]
 
 pbs = {}
-pbslower = []
+pbslist = []
 posblue = []
 posred = []
 blueteamchamps = []
@@ -69,30 +75,26 @@ t2 = input("Red Team: ")
 for x in (range(len(list))):
     type = list[x]
     inputstring = types.get(type)
-    while True:
+    champ = input("{}: ".format(inputstring))
+    if champ.lower().strip() == "none" and ("bb" in type or "rb" in type):
+        pbs[type] = "None"
+        continue
+    key = keysforchamps.get(champ.lower().strip())
+    while (champ.lower().strip() not in champs or key in pbslist or not key) and champ.lower().strip() != "none":
+        print("Champ not found or already selected!")
         champ = input("{}: ".format(inputstring))
-        if champ.lower() == "none":
-            if champ == "None" and ("bb" in type or "rb" in type):
-                pbs[type] = champ
-                break
-            else:
-                print("Use None!")
-                continue
-        elif champ.lower() in champnames or champ in champidslower:
-            if champ.lower() in pbslower:
-                print("The champ has already been chosen.")
-                continue
-            else:
-                pbs[type] = champ
-                pbslower.append(champ.lower())
-                if "bp" in type:
-                    blueteamchamps.append(champ)
-                elif "rp" in type:
-                    redteamchamps.append(champ)
-                break
-        else:
-            print("Not found!")
+        if champ.lower().strip() == "none" and ("bb" in type or "rb" in type):
+            pbs[type] = "None"
             continue
+        key = keysforchamps.get(champ.lower().strip())
+    prettychamp = prettychamps.get(key)
+    pbs[type] = prettychamp
+    pbslist.append(key)
+    if "bp" in type:
+        blueteamchamps.append(prettychamp)
+    elif "rp" in type:
+        redteamchamps.append(prettychamp)
+    continue
 
 typesblue = ["bpo1", "bpo2", "bpo3", "bpo4", "bpo5"]
 typesred = ["rpo1", "rpo2", "rpo3", "rpo4", "rpo5"]
