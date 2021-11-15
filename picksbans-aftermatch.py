@@ -10,16 +10,22 @@ currentVer = versions.json()[0]
 
 response = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/champion.json".format(str(currentVer)))
 
-champkeys = response.json()["data"]
-champids = list(champkeys.keys())
-champnames = []
-champidslower = []
+champdata = response.json()["data"]
+champkeyslist = list(champdata.keys())
+champs = []
+keysforchamps = {}
+prettychamps = {}
 
-for x in range(len(champids)):
-    champid = champids[x]
-    champname = response.json()["data"][champid]["name"]
-    champnames.append(champname.lower())
-    champidslower.append(champid.lower())
+for x in range(len(champdata)):
+    champ = champkeyslist[x]
+    champname = champdata[champ]["name"]
+    champid = champdata[champ]["id"]
+    champkey = champdata[champ]["key"]
+    champs.append(champname.lower())
+    champs.append(champid.lower())
+    keysforchamps[champname.lower()] = champkey
+    keysforchamps[champid.lower()] = champkey
+    prettychamps[champkey] = champname
 
 PICKSBANS = """{{{{PicksAndBansS7|blueteam={t1} |redteam={t2}\n|team1score= |team2score= |winner=\n|blueban1={bb1} |red_ban1={rb1}\n|blueban2={bb2} |red_ban2={rb2}\n|blueban3={bb3} |red_ban3={rb3}\n
 |bluepick1={bp1} |bluerole1={bpo1}\n                                           |red_pick1={rp1} |red_role1={rpo1}\n                                           |red_pick2={rp2} |red_role2={rpo2}\n|bluepick2={bp2} |bluerole2={bpo2}\n|bluepick3={bp3} |bluerole3={bpo3}\n                                           |red_pick3={rp3} |red_role3={rpo3}\n
@@ -41,8 +47,8 @@ types = {
     "rp5": "5th Red Pick"
 }
 
-date= input("Match date in yyyy-mm-dd format: ")
-date=dt.datetime.strptime(date, "%Y-%m-%d").date()
+date = input("Match date in yyyy-mm-dd format: ")
+date = dt.datetime.strptime(date, "%Y-%m-%d").date()
 datedelta = str(date+dt.timedelta(2))
 t1 = input("Blue Team: ")
 t2 = input("Red Team: ")
@@ -56,6 +62,7 @@ response = site.api('cargoquery',
 )
 parsed = json.dumps(response)
 data = json.loads(parsed)
+
 if not data["cargoquery"]:
     print("Not matches found!")
     os.system("pause")
@@ -76,75 +83,70 @@ elif len(data["cargoquery"]) > 1:
         print("Error while trying to parse match!")
         os.system("pause")
         exit()
+
 res = data["cargoquery"][0]["title"]["Team1Bans"]
 t1bans = res.split(",")
 res2 = data["cargoquery"][0]["title"]["Team2Bans"]
 t2bans = res2.split(",")
-res3 = data["cargoquery"][0]["title"]["Team1Picks"]
-t1picks = res3.split(",")
-res4 = data["cargoquery"][0]["title"]["Team2Picks"]
-t2picks = res4.split(",")
 
-bb1 = t1bans[0]
-bb2 = t1bans[1]
-bb3 = t1bans[2]
-bb4 = t1bans[3]
-bb5 = t1bans[4]
-rb1 = t2bans[0]
-rb2 = t2bans[1]
-rb3 = t2bans[2]
-rb4 = t2bans[3]
-rb5 = t2bans[4]
-
-print("Blue Ban 1: {bb1}\nBlue Ban 2: {bb2}\nBlue Ban 3: {bb3}\nBlue Ban 4: {bb4}\nBlue Ban 5: {bb5}\nRed Ban 1: {rb1}\nRed Ban 2: {rb2}\nRed Ban 3: {rb3}\nRed Ban 4: {rb4}\nRed Ban 5: {rb5}"
-.format(bb1 = bb1, bb2 = bb2, bb3 = bb3, bb4 = bb4, bb5 = bb5, rb1 = rb1, rb2 = rb2, rb3 = rb3, rb4 = rb4, rb5 = rb5))
-
-list = list(types.keys())
+bans = []
+typeslist = list(types.keys())
 pbs = {}
-pbslower = []
+pbslist = []
 posblue = []
 posred = []
 blueteamchamps = []
 redteamchamps = []
 
-pbslower.extend([bb1.lower(), bb2.lower(), bb3.lower(), bb4.lower(), bb5.lower(), rb1.lower(), rb2.lower(), rb3.lower(), rb4.lower(), rb5.lower()])
+bans = [t1bans[0], t1bans[1], t1bans[2], t1bans[3], t1bans[4], t2bans[0], t2bans[1], t2bans[2], t2bans[3], t2bans[4]]
+
+for x in range(len(bans)):
+    ban = bans[x]
+    if ban.lower() == "none":
+        continue
+    bankey = keysforchamps.get(ban.lower())
+    if not bankey:
+        print("BAN ERROR!")
+        os.system("pause")
+        exit()
+    pbslist.append(bankey)
+
+print("Blue Ban 1: {bb1}\nBlue Ban 2: {bb2}\nBlue Ban 3: {bb3}\nBlue Ban 4: {bb4}\nBlue Ban 5: {bb5}\nRed Ban 1: {rb1}\nRed Ban 2: {rb2}\nRed Ban 3: {rb3}\nRed Ban 4: {rb4}\nRed Ban 5: {rb5}"
+.format(bb1 = bans[0], bb2 = bans[1], bb3 = bans[2], bb4 = bans[3], bb5 = bans[4], rb1 = bans[5], rb2 = bans[6], rb3 = bans[7], rb4 = bans[8], rb5 = bans[9]))
 
 pbs = {
-    "bb1": bb1,
-    "bb2": bb2,
-    "bb3": bb3,
-    "bb4": bb4,
-    "bb5": bb5,
-    "rb1": rb1,
-    "rb2": rb2,
-    "rb3": rb3,
-    "rb4": rb4,
-    "rb5": rb5
+    "bb1": bans[0],
+    "bb2": bans[1],
+    "bb3": bans[2],
+    "bb4": bans[3],
+    "bb5": bans[4],
+    "rb1": bans[5],
+    "rb2": bans[6],
+    "rb3": bans[7],
+    "rb4": bans[8],
+    "rb5": bans[9]
 }
 
 if "None" in pbs.values():
     print("\nCHECK FOR BAN ORDER!")
 
-for x in (range(len(list))):
-    type = list[x]
+for x in (range(len(typeslist))):
+    type = typeslist[x]
     inputstring = types.get(type)
-    while True:
+    champ = input("{}: ".format(inputstring))
+    key = keysforchamps.get(champ.lower().strip())
+    while champ.lower().strip() not in champs or key in pbslist or not key:
+        print("Champ not found or already selected!")
         champ = input("{}: ".format(inputstring))
-        if champ.lower() in champnames or champ in champidslower:
-            if champ.lower() in pbslower:
-                print("The champ has already been chosen.")
-                continue
-            else:
-                pbs[type] = champ
-                pbslower.append(champ.lower())
-                if "bp" in type:
-                    blueteamchamps.append(champ)
-                elif "rp" in type:
-                    redteamchamps.append(champ)
-                break
-        else:
-            print("Not found!")
-            continue
+        key = keysforchamps.get(champ.lower().strip())
+    prettychamp = prettychamps.get(key)
+    pbs[type] = prettychamp
+    pbslist.append(key)
+    if "bp" in type:
+        blueteamchamps.append(prettychamp)
+    elif "rp" in type:
+        redteamchamps.append(prettychamp)
+    continue
 
 typesblue = ["bpo1", "bpo2", "bpo3", "bpo4", "bpo5"]
 typesred = ["rpo1", "rpo2", "rpo3", "rpo4", "rpo5"]
