@@ -113,8 +113,6 @@ for key, value in pbs.items():
         exit()
     bankeys[key + "k"] = bankey[0]
 
-print(bankeys)
-
 pbs = {**pbs, **bankeys}
 
 print("Blue Ban 1: {bb1}\nBlue Ban 2: {bb2}\nBlue Ban 3: {bb3}\nBlue Ban 4: {bb4}\nBlue Ban 5: {bb5}\nRed Ban 1: {rb1}\nRed Ban 2: {rb2}\nRed Ban 3: {rb3}\nRed Ban 4: {rb4}\nRed Ban 5: {rb5}"
