@@ -37,8 +37,9 @@ site = mwclient.Site('lol.fandom.com', path='/')
 response = site.api('cargoquery',
 	limit = "max",
 	tables = "ScoreboardGames=SG",
-	fields = "SG.Team1Bans, SG.Team2Bans, SG.Team1Picks, SG.Team2Picks",
-	where = 'SG.DateTime_UTC >= "{date} 00:00:00" AND SG.DateTime_UTC <= "{datedelta} 00:00:00" AND SG.Team1 = "{t1}" AND SG.Team2 = "{t2}"'.format(date = date, datedelta = datedelta, t1 = t1, t2 = t2)
+	fields = "SG.Team1Bans, SG.Team2Bans, SG.Team1Picks, SG.Team2Picks, SG.GameId",
+	where = 'SG.DateTime_UTC >= "{date} 00:00:00" AND SG.DateTime_UTC <= "{datedelta} 00:00:00" AND SG.Team1 = "{t1}" AND SG.Team2 = "{t2}"'.format(date = date, datedelta = datedelta, t1 = t1, t2 = t2),
+    order_by = "SG.GameId"
 )
 parsed = json.dumps(response)
 data = json.loads(parsed)
@@ -49,7 +50,18 @@ if not data["cargoquery"]:
     exit()
 elif len(data["cargoquery"]) > 1:
     print("Multiple matches found!")
-    gi = input("Enter the Game Id: ")
+    foundGameIds = {}
+    for x, game in enumerate(data["cargoquery"]):
+        x += 1
+        gameId = game["title"]["GameId"]
+        print("{0}- {1}".format(str(x), gameId))
+        foundGameIds[str(x)] = gameId
+    gi = input("Which Game Id are you looking for? ")
+    gi = foundGameIds.get(str(gi))
+    while not gi:
+        print("The ID is not on the list! Select it by its index.")
+        gi = input("Which Game Id are you looking for? ")
+        gi = foundGameIds.get(str(gi))
     site = mwclient.Site('lol.fandom.com', path='/')
     response = site.api('cargoquery',
 	    limit = "max",
