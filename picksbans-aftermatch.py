@@ -1,9 +1,9 @@
 import requests
 import json
-import mwclient
 import datetime as dt
 from datetime import date, timedelta
 import os
+from mwrogue.esports_client import EsportsClient
 
 versions = requests.get("https://ddragon.leagueoflegends.com/api/versions.json")
 currentVer = versions.json()[0]
@@ -32,28 +32,27 @@ date = dt.datetime.strptime(date, "%Y-%m-%d").date()
 datedelta = str(date+dt.timedelta(2))
 t1 = input("Blue Team: ")
 t2 = input("Red Team: ")
-
-site = mwclient.Site('lol.fandom.com', path='/')
-response = site.api('cargoquery',
+site = EsportsClient('lol')
+response = site.cargo_client.query(
 	limit = "max",
 	tables = "ScoreboardGames=SG",
 	fields = "SG.Team1Bans, SG.Team2Bans, SG.Team1Picks, SG.Team2Picks, SG.GameId",
 	where = 'SG.DateTime_UTC >= "{date} 00:00:00" AND SG.DateTime_UTC <= "{datedelta} 00:00:00" AND SG.Team1 = "{t1}" AND SG.Team2 = "{t2}"'.format(date = date, datedelta = datedelta, t1 = t1, t2 = t2),
     order_by = "SG.GameId"
 )
-parsed = json.dumps(response)
-data = json.loads(parsed)
 
-if not data["cargoquery"]:
+print(response)
+
+if not response:
     print("Not matches found!")
     os.system("pause")
     exit()
-elif len(data["cargoquery"]) > 1:
+elif len(response) > 1:
     print("Multiple matches found!")
     foundGameIds = {}
-    for x, game in enumerate(data["cargoquery"]):
+    for x, game in enumerate(response):
         x += 1
-        gameId = game["title"]["GameId"]
+        gameId = game["GameId"]
         print("{0}- {1}".format(str(x), gameId))
         foundGameIds[str(x)] = gameId
     gi = input("Which Game Id are you looking for? ")
@@ -62,23 +61,20 @@ elif len(data["cargoquery"]) > 1:
         print("The ID is not on the list! Select it by its index.")
         gi = input("Which Game Id are you looking for? ")
         gi = foundGameIds.get(str(gi))
-    site = mwclient.Site('lol.fandom.com', path='/')
-    response = site.api('cargoquery',
+    response = site.cargo_client.query(
 	    limit = "max",
 	    tables = "ScoreboardGames=SG",
 	    fields = "SG.Team1Bans, SG.Team2Bans, SG.Team1Picks, SG.Team2Picks",
 	    where = 'SG.DateTime_UTC >= "{date} 00:00:00" AND SG.DateTime_UTC <= "{datedelta} 00:00:00" AND SG.Team1 = "{t1}" AND SG.Team2 = "{t2}" AND SG.GameId = "{gi}"'.format(date = date, datedelta = datedelta, t1 = t1, t2 = t2, gi = gi)
     )
-    parsed = json.dumps(response)
-    data = json.loads(parsed)
-    if len(data["cargoquery"]) != 1:
+    if len(response) != 1:
         print("Error while trying to parse match!")
         os.system("pause")
         exit()
 
-res = data["cargoquery"][0]["title"]["Team1Bans"]
+res = response[0]["Team1Bans"]
 t1bans = res.split(",")
-res2 = data["cargoquery"][0]["title"]["Team2Bans"]
+res2 = response[0]["Team2Bans"]
 t2bans = res2.split(",")
 
 pbs = {}
@@ -161,10 +157,9 @@ for x, type in enumerate(typesblue):
             if role in posblue:
                 print("The position has already been chosen for this team!")
                 continue
-            else:
-                pbs[type] = role
-                posblue.append(role)
-                break
+            pbs[type] = role
+            posblue.append(role)
+            break
         else:
             print("The position is not valid!")
             continue
@@ -181,10 +176,9 @@ for x, type in enumerate(typesred):
             if role in posred:
                 print("The position has already been chosen for this team!")
                 continue
-            else:
-                pbs[type] = role
-                posred.append(role)
-                break
+            pbs[type] = role
+            posred.append(role)
+            break
         else:
             print("The position is not valid!")
 
