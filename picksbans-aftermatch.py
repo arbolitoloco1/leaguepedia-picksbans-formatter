@@ -1,7 +1,5 @@
 import requests
-import json
 import datetime as dt
-from datetime import date, timedelta
 import os
 from mwrogue.esports_client import EsportsClient
 
