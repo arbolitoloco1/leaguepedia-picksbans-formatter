@@ -4,7 +4,7 @@ import os
 versions = requests.get("https://ddragon.leagueoflegends.com/api/versions.json")
 currentVer = versions.json()[0]
 
-response = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/champion.json".format(str(currentVer)))
+response = requests.get(f"http://ddragon.leagueoflegends.com/cdn/{currentVer}/data/en_US/champion.json")
 
 champdata = response.json()["data"]
 champs = {}
