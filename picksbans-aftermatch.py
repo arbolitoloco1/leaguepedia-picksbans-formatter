@@ -6,7 +6,7 @@ from mwrogue.esports_client import EsportsClient
 versions = requests.get("https://ddragon.leagueoflegends.com/api/versions.json")
 currentVer = versions.json()[0]
 
-response = requests.get("http://ddragon.leagueoflegends.com/cdn/{}/data/en_US/champion.json".format(str(currentVer)))
+response = requests.get(f"http://ddragon.leagueoflegends.com/cdn/{str(currentVer)}/data/en_US/champion.json")
 
 champdata = response.json()["data"]
 champs = {}
@@ -35,11 +35,9 @@ response = site.cargo_client.query(
 	limit = "max",
 	tables = "ScoreboardGames=SG",
 	fields = "SG.Team1Bans, SG.Team2Bans, SG.Team1Picks, SG.Team2Picks, SG.GameId",
-	where = 'SG.DateTime_UTC >= "{date} 00:00:00" AND SG.DateTime_UTC <= "{datedelta} 00:00:00" AND SG.Team1 = "{t1}" AND SG.Team2 = "{t2}"'.format(date = date, datedelta = datedelta, t1 = t1, t2 = t2),
+	where = f'SG.DateTime_UTC >= "{date} 00:00:00" AND SG.DateTime_UTC <= "{datedelta} 00:00:00" AND SG.Team1 = "{t1}" AND SG.Team2 = "{t2}"',
     order_by = "SG.GameId"
 )
-
-print(response)
 
 if not response:
     print("Not matches found!")
@@ -59,16 +57,10 @@ elif len(response) > 1:
         print("The ID is not on the list! Select it by its index.")
         gi = input("Which Game Id are you looking for? ")
         gi = foundGameIds.get(str(gi))
-    response = site.cargo_client.query(
-	    limit = "max",
-	    tables = "ScoreboardGames=SG",
-	    fields = "SG.Team1Bans, SG.Team2Bans, SG.Team1Picks, SG.Team2Picks",
-	    where = 'SG.DateTime_UTC >= "{date} 00:00:00" AND SG.DateTime_UTC <= "{datedelta} 00:00:00" AND SG.Team1 = "{t1}" AND SG.Team2 = "{t2}" AND SG.GameId = "{gi}"'.format(date = date, datedelta = datedelta, t1 = t1, t2 = t2, gi = gi)
-    )
-    if len(response) != 1:
-        print("Error while trying to parse match!")
-        os.system("pause")
-        exit()
+    for item in response:
+        if item["GameId"] == gi:
+            response[0] = item
+            print(response)
 
 res = response[0]["Team1Bans"]
 t1bans = res.split(",")
@@ -95,7 +87,7 @@ types = {
     "rp5": "5th Red Pick"
 }
 
-pbs = {
+teambans = {
     "bb1": t1bans[0],
     "bb2": t1bans[1],
     "bb3": t1bans[2],
@@ -108,18 +100,20 @@ pbs = {
     "rb5": t2bans[4]
 }
 
-for key, value in pbs.items():
+pbs = {}
+
+for key, value in teambans.items():
     if value.lower() == "none":
-        bankeys[key + "k"] = 0
+        pbs[key] = str(value)
+        pbs[key + "k"] = 0
         continue
     bankey = champs.get(value.lower())
     if not bankey:
         print("BAN ERROR!")
         os.system("pause")
         exit()
-    bankeys[key + "k"] = bankey[0]
-
-pbs = {**pbs, **bankeys}
+    pbs[key] = str(value)
+    pbs[key + "k"] = bankey[0]
 
 print("Blue Ban 1: {bb1}\nBlue Ban 2: {bb2}\nBlue Ban 3: {bb3}\nBlue Ban 4: {bb4}\nBlue Ban 5: {bb5}\nRed Ban 1: {rb1}\nRed Ban 2: {rb2}\nRed Ban 3: {rb3}\nRed Ban 4: {rb4}\nRed Ban 5: {rb5}"
 .format(bb1 = t1bans[0], bb2 = t1bans[1], bb3 = t1bans[2], bb4 = t1bans[3], bb5 = t1bans[4], rb1 = t2bans[0], rb2 = t2bans[1], rb3 = t2bans[2], rb4 = t2bans[3], rb5 = t2bans[4]))
